@@ -1,8 +1,8 @@
 #include <WiFi.h>
 #include <PubSubClient.h>
 
-const char* ssid = "HOME OI FIBRA 2.4G";
-const char* password = "Veiaco650650";
+const char* ssid = "nome da rede";
+const char* password = "senha";
 WiFiClient wifiClient;
 
 const char* mqttServer = "192.168.1.142";
@@ -19,7 +19,7 @@ const char* topicLedVerde = "ledVerde";
 
 unsigned long lastMsg = 0;
 int value = 0;
-#define MSG_BUFFER_SIZE	(50)
+#define MSG_BUFFER_SIZE	(10)
 char msg[MSG_BUFFER_SIZE];
 
 PubSubClient MQTT(wifiClient);  
@@ -49,7 +49,7 @@ void loop(void) {
   if (now - lastMsg > 50) {
     lastMsg = now;
     ++value;
-    snprintf (msg, MSG_BUFFER_SIZE, "hello world #%ld", value);
+    snprintf (msg, MSG_BUFFER_SIZE, "%ld", value);
     MQTT.publish("outTopic", msg);
   }
 
