@@ -1,11 +1,11 @@
 #include <WiFi.h>
 #include <PubSubClient.h>
 
-const char* ssid = "nome da rede";
-const char* password = "senha";
+const char* ssid = "Esp32";
+const char* password = "123456789";
 WiFiClient wifiClient;
 
-const char* mqttServer = "192.168.1.142";
+const char* mqttServer = "192.168.137.78";
 const int mqttPort = 1883;
 const char* clientId = "mqtt_1";
 
@@ -16,6 +16,7 @@ const int ledVerde = 25;
 const char* topicLedAzul = "ledAzul";
 const char* topicLedVermelho = "ledVermelho";
 const char* topicLedVerde = "ledVerde";
+char* teste;
 
 unsigned long lastMsg = 0;
 int value = 0;
@@ -46,11 +47,12 @@ void loop(void) {
   mantemConexoes();
   
   unsigned long now = millis();
-  if (now - lastMsg > 50) {
+  if (now - lastMsg > 49) {
     lastMsg = now;
     ++value;
-    snprintf (msg, MSG_BUFFER_SIZE, "%ld", value);
-    MQTT.publish("outTopic", msg);
+    snprintf (msg, MSG_BUFFER_SIZE, "%ld,%ld", lastMsg, value);
+    if (teste != "1")
+      MQTT.publish("outTopic", msg);
   }
 
   MQTT.loop();
