@@ -1,22 +1,15 @@
 #include <WiFi.h>
 #include <PubSubClient.h>
 
-const char* ssid = "Esp32";
-const char* password = "123456789";
+const char* ssid = "HOME OI FIBRA 2.4G";
+const char* password = "Veiaco650650";
 WiFiClient wifiClient;
 
-const char* mqttServer = "192.168.137.78";
+const char* mqttServer = "192.168.1.142";
 const int mqttPort = 1883;
 const char* clientId = "mqtt_1";
-
-const int ledVermelho = 27;
-const int ledAzul = 26;
-const int ledVerde = 25;
-
-const char* topicLedAzul = "ledAzul";
-const char* topicLedVermelho = "ledVermelho";
-const char* topicLedVerde = "ledVerde";
-char* teste;
+int pwm = 33;
+int sensor = 36;
 
 unsigned long lastMsg = 0;
 int value = 0;
@@ -33,26 +26,27 @@ void recebePacote(char* topic, byte* payload, unsigned int length);
 
 void setup(void) {
   Serial.begin(9600);
+
+  pinMode(sensor, INPUT);
+  pinMode(pwm, OUTPUT);
+
   conectaWiFi();
   MQTT.setServer(mqttServer, mqttPort); 
   MQTT.setCallback(recebePacote);
-
-  pinMode(ledVermelho, OUTPUT);
-  pinMode(ledAzul, OUTPUT);
-  pinMode(ledVerde, OUTPUT);
 }
 
 void loop(void) {  
 
   mantemConexoes();
+
+  digitalWrite(pwm, HIGH);
   
   unsigned long now = millis();
   if (now - lastMsg > 49) {
     lastMsg = now;
-    ++value;
+    value = analogRead(sensor)*3.3/1023.0;
     snprintf (msg, MSG_BUFFER_SIZE, "%ld,%ld", lastMsg, value);
-    if (teste != "1")
-      MQTT.publish("outTopic", msg);
+    MQTT.publish("outTopic", msg);
   }
 
   MQTT.loop();
@@ -77,9 +71,6 @@ void conectaMQTT() {
 
     if(MQTT.connect(clientId)){
       Serial.println("Conectado ao Broker com sucesso!");
-      MQTT.subscribe(topicLedAzul);
-      MQTT.subscribe(topicLedVermelho);
-      MQTT.subscribe(topicLedVerde);
       return;
     }
 
@@ -113,23 +104,6 @@ void recebePacote(char* topic, byte* payload, unsigned int length)
     {
        char c = (char)payload[i];
        msg += c;
-    }
-
-    if (msg == "1") {
-      digitalWrite(ledVermelho, HIGH);
-      digitalWrite(ledAzul, LOW);
-      digitalWrite(ledVerde, LOW);
-      value = 0;
-    } else if (msg == "2") {
-      digitalWrite(ledVermelho, LOW);
-      digitalWrite(ledAzul, HIGH);
-      digitalWrite(ledVerde, LOW);
-      value = 0;
-    } else if (msg == "3") {
-      digitalWrite(ledVermelho, LOW);
-      digitalWrite(ledAzul, LOW);
-      digitalWrite(ledVerde, HIGH);
-      value = 0;
     }
     
     Serial.print("Chegou a seguinte string via MQTT: ");
