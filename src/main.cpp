@@ -1,8 +1,8 @@
 #include <WiFi.h>
 #include <PubSubClient.h>
 
-const char* ssid = "HOME OI FIBRA 2.4G";
-const char* password = "Veiaco650650";
+const char* ssid = "name";
+const char* password = "password";
 WiFiClient wifiClient;
 
 const char* mqttServer = "192.168.1.142";
